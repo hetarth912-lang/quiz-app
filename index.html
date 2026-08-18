@@ -3,25 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Class IX Science Quiz Portal</title>
+  <title>Class IX Science Practice Portal</title>
   <style>
     :root {
-      --bg-color: #f0f4f8;
+      --bg-color: #f1f5f9;
       --card-bg: #ffffff;
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --correct-bg: #d1fae5;
-      --correct-border: #10b981;
-      --correct-text: #065f46;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-gray: #64748b;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --correct-bg: #dcfce7;
+      --correct-border: #16a34a;
+      --correct-text: #14532d;
       --wrong-bg: #fee2e2;
-      --wrong-border: #ef4444;
-      --wrong-text: #991b1b;
-      --border-color: #e5e7eb;
+      --wrong-border: #dc2626;
+      --wrong-text: #7f1d1d;
+      --border-color: #cbd5e1;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
     body {
       background-color: var(--bg-color);
@@ -35,98 +36,93 @@
 
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 680px;
       background: var(--card-bg);
       border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      padding: 30px;
-      margin-top: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 28px;
+      margin-top: 10px;
     }
 
-    header { text-align: center; margin-bottom: 25px; }
-    header h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 8px; }
-    header p { color: var(--text-muted); font-size: 0.95rem; }
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { color: var(--primary); font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+    header p { color: var(--text-muted); font-size: 0.9rem; }
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 25px;
-      align-items: center;
-      justify-content: space-between;
+    .selection-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
       background: #f8fafc;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 16px;
+      border-radius: 12px;
       border: 1px solid var(--border-color);
     }
 
-    .select-group { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
-    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+    .select-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     
     select {
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
       outline: none;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       background: white;
       cursor: pointer;
+      font-weight: 500;
     }
 
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 11px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      align-self: flex-end;
-    }
-    .btn:hover { background: var(--primary-hover); }
-
-    .stats {
+    .status-bar {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--text-muted);
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 12px;
+    }
+
+    .badge {
+      background: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: var(--text-main);
     }
 
     .q-card {
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      background: #fff;
-      transition: all 0.2s ease;
+      padding: 24px;
+      margin-bottom: 24px;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
 
-    .q-title { font-weight: 600; font-size: 1rem; margin-bottom: 12px; }
+    .q-title { font-weight: 600; font-size: 1.1rem; line-height: 1.5; margin-bottom: 18px; color: var(--text-main); }
 
     .input-wrapper {
       display: flex;
       align-items: center;
-      gap: 10px;
-      position: relative;
+      gap: 12px;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       border-radius: 8px;
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
       outline: none;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
+      font-size: 1rem;
+      transition: all 0.2s ease;
     }
 
     .status-icon {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       font-weight: bold;
-      min-width: 24px;
+      min-width: 28px;
       text-align: center;
     }
 
@@ -134,9 +130,9 @@
     .icon-wrong { color: var(--wrong-border); }
 
     .feedback-msg {
-      margin-top: 8px;
-      font-size: 0.88rem;
-      font-weight: 500;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
       display: none;
     }
 
@@ -155,7 +151,43 @@
 
     .revealed-answer {
       color: var(--correct-text);
+      font-weight: 700;
+    }
+
+    /* Action Buttons Navigation */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 10px;
+      border-radius: 8px;
       font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-warning { background: #fef3c7; color: #92400e; }
+    .btn-warning:hover { background: #fde68a; }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    @media (max-width: 500px) {
+      .selection-panel { grid-template-columns: 1fr; }
+      .controls-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -164,27 +196,52 @@
   <div class="container">
     <header>
       <h1>Class IX Science Practice Portal</h1>
-      <p>Instant feedback while typing. 2 attempts allowed per question.</p>
+      <p>Type your answer. 2 attempts allowed per question.</p>
     </header>
 
-    <div class="controls">
+    <!-- Chapter & Mode Selection -->
+    <div class="selection-panel">
       <div class="select-group">
         <label for="chapterSelect">Select Chapter</label>
-        <select id="chapterSelect"></select>
+        <select id="chapterSelect" onchange="initTest()"></select>
       </div>
-      <button class="btn" onclick="loadTest()">Generate 20 New Questions</button>
+      <div class="select-group">
+        <label for="rangeSelect">Practice Range</label>
+        <select id="rangeSelect" onchange="initTest()">
+          <option value="all">Whole Chapter (All Questions)</option>
+          <option value="p1">Page 1-5 (Questions 1-10)</option>
+          <option value="p2">Page 6-10 (Questions 11-20)</option>
+          <option value="p3">Page 11-15 (Questions 21-30)</option>
+        </select>
+      </div>
     </div>
 
-    <div class="stats">
-      <span id="progressText">Completed: 0 / 20</span>
+    <!-- Status Header -->
+    <div class="status-bar">
+      <span class="badge" id="qTracker">Question 1 of 20</span>
       <span id="scoreText">Score: 0</span>
     </div>
 
-    <div id="quizContainer"></div>
+    <!-- Question Box -->
+    <div class="q-card" id="cardBox">
+      <div class="q-title" id="qText"></div>
+      <div class="input-wrapper">
+        <input type="text" id="answerInput" autocomplete="off" placeholder="Type answer here..." oninput="handleInput()" />
+        <span class="status-icon" id="statusIcon"></span>
+      </div>
+      <div class="feedback-msg" id="feedbackMsg"></div>
+    </div>
+
+    <!-- Control Buttons (No Generate Button) -->
+    <div class="controls-grid">
+      <button class="btn btn-secondary" id="btnPrev" onclick="navigate(-1)">Previous</button>
+      <button class="btn btn-warning" id="btnSkip" onclick="skipQuestion()">Skip</button>
+      <button class="btn btn-secondary" id="btnReset" onclick="resetQuestion()">Reset</button>
+      <button class="btn btn-primary" id="btnNext" onclick="navigate(1)">Next</button>
+    </div>
   </div>
 
   <script>
-    // 12 Chapters Database
     const chapterNames = [
       "1. Matter in Our Surroundings",
       "2. Is Matter Around Us Pure?",
@@ -200,21 +257,21 @@
       "12. Improvement in Food Resources"
     ];
 
-    // Sample database with variants for 20 randomized questions per test
     const questionBank = {};
 
+    // Generate Question Pools
     chapterNames.forEach((ch, idx) => {
       questionBank[idx + 1] = [];
       for (let i = 1; i <= 30; i++) {
         questionBank[idx + 1].push({
           id: `${idx + 1}_${i}`,
-          question: `[Chapter ${idx + 1}] Practice Question ${i}: What is the primary standard unit or concept for Topic #${i}?`,
+          question: `[Chapter ${idx + 1}] Practice Question ${i}: What is the core concept or unit for Topic #${i}?`,
           answer: `answer${i}`
         });
       }
     });
 
-    // Populate Chapter 1 with actual textbook concepts
+    // Detailed Chapter 1 Questions
     questionBank[1] = [
       { question: "SI unit of mass is _____", answer: "kilogram" },
       { question: "SI unit of volume is _____", answer: "cubic metre" },
@@ -228,13 +285,13 @@
       { question: "Boiling temperature of pure water in Celsius scale is _____ °C", answer: "100" },
       { question: "Melting point of ice in Kelvin scale is _____ K", answer: "273" },
       { question: "Evaporation causes a _____ effect.", answer: "cooling" },
-      { question: "Amount of heat required to melt 1kg solid at atmospheric pressure is latent heat of _____", answer: "fusion" },
-      { question: "Amount of heat required to change 1kg liquid to gas is latent heat of _____", answer: "vaporisation" },
+      { question: "Heat required to melt 1kg solid at atmospheric pressure is latent heat of _____", answer: "fusion" },
+      { question: "Heat required to change 1kg liquid to gas is latent heat of _____", answer: "vaporisation" },
       { question: "Matter is made up of very small _____", answer: "particles" },
       { question: "State of matter with fixed shape and volume is _____", answer: "solid" },
       { question: "State of matter with fixed volume but no fixed shape is _____", answer: "liquid" },
       { question: "State of matter with neither fixed shape nor volume is _____", answer: "gas" },
-      { question: "Intermixing of particles of two different types of matter on their own is called _____", answer: "diffusion" },
+      { question: "Intermixing of particles of two different types of matter on their own is _____", answer: "diffusion" },
       { question: "Fourth state of matter consisting of super energetic ionised gas is _____", answer: "plasma" },
       { question: "Fifth state of matter formed by cooling gas of low density is BEC (Bose-Einstein _____)", answer: "condensate" },
       { question: "Density is defined as mass per unit _____", answer: "volume" },
@@ -244,10 +301,11 @@
     ];
 
     let currentQuestions = [];
+    let currentIndex = 0;
     let state = {};
     let score = 0;
 
-    // Initialize Dropdown
+    // Populate Chapter Dropdown
     const selectElem = document.getElementById('chapterSelect');
     chapterNames.forEach((name, index) => {
       const opt = document.createElement('option');
@@ -256,111 +314,140 @@
       selectElem.appendChild(opt);
     });
 
-    function loadTest() {
+    function initTest() {
       const chNum = selectElem.value;
-      const pool = questionBank[chNum] || [];
-      
-      // Select 20 unique questions randomly
+      const range = document.getElementById('rangeSelect').value;
+      let pool = questionBank[chNum] || [];
+
+      // Filter by range/page wise selection
+      if (range === 'p1') pool = pool.slice(0, 10);
+      else if (range === 'p2') pool = pool.slice(10, 20);
+      else if (range === 'p3') pool = pool.slice(20, 30);
+
+      // Randomize 20 unique questions (or max pool size)
       const shuffled = [...pool].sort(() => 0.5 - Math.random());
       currentQuestions = shuffled.slice(0, 20);
 
-      state = {};
+      currentIndex = 0;
       score = 0;
-      updateStats();
+      state = {};
 
-      const container = document.getElementById('quizContainer');
-      container.innerHTML = '';
-
-      currentQuestions.forEach((q, idx) => {
-        state[q.id] = { attempts: 0, solved: false };
-
-        const card = document.createElement('div');
-        card.className = 'q-card';
-        card.id = `card-${q.id}`;
-
-        card.innerHTML = `
-          <div class="q-title">${idx + 1}. ${q.question}</div>
-          <div class="input-wrapper">
-            <input type="text" id="input-${q.id}" autocomplete="off" placeholder="Type answer here..." oninput="checkAnswer('${q.id}', '${q.answer}')" />
-            <span class="status-icon" id="icon-${q.id}"></span>
-          </div>
-          <div class="feedback-msg" id="msg-${q.id}"></div>
-        `;
-        container.appendChild(card);
+      currentQuestions.forEach((q) => {
+        state[q.id] = { attempts: 0, solved: false, userValue: '' };
       });
+
+      renderQuestion();
     }
 
-    function checkAnswer(qId, correctAnswer) {
-      const qState = state[qId];
-      if (qState.solved) return; // Freeze input if solved or auto-revealed
+    function renderQuestion() {
+      const q = currentQuestions[currentIndex];
+      const qState = state[q.id];
 
-      const inputElem = document.getElementById(`input-${qId}`);
-      const iconElem = document.getElementById(`icon-${qId}`);
-      const msgElem = document.getElementById(`msg-${qId}`);
-      const cardElem = document.getElementById(`card-${qId}`);
+      document.getElementById('qTracker').textContent = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+      document.getElementById('scoreText').textContent = `Score: ${score}`;
+      document.getElementById('qText').textContent = `${currentIndex + 1}. ${q.question}`;
 
-      const userVal = inputElem.value.trim().toLowerCase();
-      const targetVal = correctAnswer.trim().toLowerCase();
+      const cardElem = document.getElementById('cardBox');
+      const inputElem = document.getElementById('answerInput');
+      const iconElem = document.getElementById('statusIcon');
+      const msgElem = document.getElementById('feedbackMsg');
 
-      // Clear formatting if input is empty
-      if (userVal === '') {
-        cardElem.className = 'q-card';
-        iconElem.textContent = '';
-        msgElem.style.display = 'none';
-        return;
-      }
+      inputElem.value = qState.userValue;
+      inputElem.disabled = qState.solved;
 
-      // Check Correct Answer while typing
-      if (userVal === targetVal) {
-        qState.solved = true;
+      // Update Card Visuals based on saved state
+      if (qState.solved) {
         cardElem.className = 'q-card is-correct';
         iconElem.textContent = '✓';
         iconElem.className = 'status-icon icon-correct';
-        msgElem.textContent = 'Correct!';
-        msgElem.style.color = 'var(--correct-text)';
         msgElem.style.display = 'block';
-        inputElem.disabled = true;
-        score++;
-        updateStats();
-        return;
-      }
-
-      // Wrong Answer Logic
-      cardElem.className = 'q-card is-wrong';
-      iconElem.textContent = '✗';
-      iconElem.className = 'status-icon icon-wrong';
-
-      // Record wrong attempt on Enter or blur event can also be tracked,
-      // here incrementing per distinct wrong string entered
-      qState.attempts += 1;
-
-      if (qState.attempts >= 2) {
-        qState.solved = true;
-        cardElem.className = 'q-card is-correct';
-        iconElem.textContent = '✓';
-        iconElem.className = 'status-icon icon-correct';
-        
-        inputElem.value = correctAnswer; // Fill right answer
-        inputElem.disabled = true;
-
-        msgElem.innerHTML = `2 incorrect attempts used. Right answer: <span class="revealed-answer">${correctAnswer}</span>`;
-        msgElem.style.display = 'block';
-        updateStats();
-      } else {
+        if (qState.attempts >= 2) {
+          msgElem.innerHTML = `2 attempts used. Right answer: <span class="revealed-answer">${q.answer}</span>`;
+        } else {
+          msgElem.textContent = 'Correct!';
+          msgElem.style.color = 'var(--correct-text)';
+        }
+      } else if (qState.attempts === 1) {
+        cardElem.className = 'q-card is-wrong';
+        iconElem.textContent = '✗';
+        iconElem.className = 'status-icon icon-wrong';
         msgElem.textContent = 'Incorrect. Try 1 more time.';
         msgElem.style.color = 'var(--wrong-text)';
         msgElem.style.display = 'block';
+      } else {
+        cardElem.className = 'q-card';
+        iconElem.textContent = '';
+        msgElem.style.display = 'none';
+      }
+
+      // Handle Previous / Next Button States
+      document.getElementById('btnPrev').disabled = currentIndex === 0;
+      document.getElementById('btnNext').disabled = currentIndex === currentQuestions.length - 1;
+    }
+
+    function handleInput() {
+      const q = currentQuestions[currentIndex];
+      const qState = state[q.id];
+      if (qState.solved) return;
+
+      const inputElem = document.getElementById('answerInput');
+      const userVal = inputElem.value.trim().toLowerCase();
+      const targetVal = q.answer.trim().toLowerCase();
+
+      qState.userValue = inputElem.value;
+
+      if (userVal === '') {
+        document.getElementById('cardBox').className = 'q-card';
+        document.getElementById('statusIcon').textContent = '';
+        document.getElementById('feedbackMsg').style.display = 'none';
+        return;
+      }
+
+      // Correct Answer Logic
+      if (userVal === targetVal) {
+        qState.solved = true;
+        score++;
+        renderQuestion();
+        return;
+      }
+
+      // First Incorrect Attempt Logic
+      if (qState.attempts === 0) {
+        qState.attempts = 1;
+      } else if (qState.attempts === 1 && userVal.length >= targetVal.length) {
+        // Second Incorrect Attempt Logic -> Cross turns to Tick and reveals right answer
+        qState.attempts = 2;
+        qState.solved = true;
+        qState.userValue = q.answer;
+        renderQuestion();
+      } else {
+        renderQuestion();
       }
     }
 
-    function updateStats() {
-      const completed = Object.values(state).filter(s => s.solved).length;
-      document.getElementById('progressText').textContent = `Completed: ${completed} / ${currentQuestions.length}`;
-      document.getElementById('scoreText').textContent = `Score: ${score}`;
+    function navigate(direction) {
+      const newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < currentQuestions.length) {
+        currentIndex = newIndex;
+        renderQuestion();
+      }
     }
 
-    // Load initial test
-    loadTest();
+    function skipQuestion() {
+      if (currentIndex < currentQuestions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      }
+    }
+
+    function resetQuestion() {
+      const q = currentQuestions[currentIndex];
+      state[q.id] = { attempts: 0, solved: false, userValue: '' };
+      renderQuestion();
+    }
+
+    // Initialize test on first load
+    initTest();
   </script>
 </body>
 </html>
