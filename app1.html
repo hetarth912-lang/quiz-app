@@ -101,10 +101,6 @@
       border: 1px solid #ccc;
     }
 
-    .page-node.green { background: #abf7b1; }
-    .page-node.yellow { background: #fff3a8; }
-    .page-node.red { background: #ffb3b3; }
-
     .card {
       border: 1px solid var(--border);
       padding: 20px;
@@ -114,7 +110,7 @@
       background: #fafafa;
     }
 
-    /* Textbox with icon container */
+    /* Textbox with status icon inside */
     .input-wrapper {
       position: relative;
       display: flex;
@@ -129,7 +125,7 @@
     .status-icon {
       position: absolute;
       right: 12px;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
       pointer-events: none;
     }
@@ -262,10 +258,15 @@ const EXAM_DATA = {
       "pages": {
         "1": [
           { "id": "c1_p1_1", "type": "mcq", "question": "Everything in this universe is made up of material which scientists have named:", "options": ["Energy", "Matter", "Atom", "Molecule"], "answer": "Matter" },
-          { "id": "c1_p1_2", "type": "blank", "question": "Early Indian philosophers classified matter into five basic elements called ____.", "answer": "Panch Tatva" }
+          { "id": "c1_p1_2", "type": "blank", "question": "Early Indian philosophers classified matter into five basic elements called ____.", "answer": "Panch Tatva" },
+          { "id": "c1_p1_3", "type": "mcq", "question": "Which of the following is NOT one of the Panch Tatva?", "options": ["Air", "Water", "Plastic", "Earth"], "answer": "Plastic" }
         ],
         "2": [
-          { "id": "c1_p2_1", "type": "blank", "question": "Particles of matter are very small—they are small beyond our ____.", "answer": "imagination" }
+          { "id": "c1_p2_1", "type": "blank", "question": "Particles of matter are very small—they are small beyond our ____.", "answer": "imagination" },
+          { "id": "c1_p2_2", "type": "mcq", "question": "When potassium permanganate crystals dissolve in water, the color spreads due to:", "options": ["Settling", "Particle movement", "Freezing", "Evaporation"], "answer": "Particle movement" }
+        ],
+        "3": [
+          { "id": "c1_p3_1", "type": "blank", "question": "The intermixing of particles of two different types of matter on their own is called ____.", "answer": "diffusion" }
         ]
       }
     }
@@ -278,56 +279,24 @@ let currentChapter = "Ch1";
 let currentScope = "all";
 let currentPage = null;
 
+let fullQuestionPool = [];
 let currentQuestions = [];
 let qIndex = 0;
 let attemptsLeft = 2;
 let travelMode = false;
-let audioCtx = null;
 let speechRec = null;
 
-// Session Tracking Scores
 let testScores = { correct: 0, wrong: 0, total: 0 };
 
 window.onload = function() {
-  initAudio();
   populateChapters();
   renderScope();
 };
 
-function initAudio() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (AudioContext) audioCtx = new AudioContext();
-}
-
-function playChime(success = true) {
-  if (!audioCtx) return;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  
-  if (success) {
-    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.3);
-  } else {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.2);
-  }
-}
-
 function speakText(text, callback = null) {
-  if (!('speechSynthesis' in window)) {
-    if (callback) callback();
-    return;
-  }
+  if (!travelMode && !callback) return; // Completely silent unless requested
+  if (!('speechSynthesis' in window)) { if (callback) callback(); return; }
+  
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.95;
@@ -371,7 +340,7 @@ function renderScope() {
       const node = document.createElement('div');
       node.className = `page-node`;
       node.textContent = `Pg ${p}`;
-      node.onclick = () => { currentPage = p; loadQuestions(); };
+      node.onclick = () => { currentPage = p; fetchQuestions(); };
       heatmap.appendChild(node);
     });
     currentPage = Object.keys(pages)[0];
@@ -379,32 +348,44 @@ function renderScope() {
     currentPage = null;
   }
 
-  loadQuestions();
+  fetchQuestions();
 }
 
-function loadQuestions() {
+function fetchQuestions() {
   const chData = EXAM_DATA[currentSubject][currentChapter];
-  let pool = [];
+  fullQuestionPool = [];
 
   if (chData) {
     if (currentScope === 'page' && currentPage) {
-      pool = chData.pages[currentPage] || [];
+      fullQuestionPool = chData.pages[currentPage] || [];
     } else {
       Object.keys(chData.pages).forEach(p => {
-        pool = pool.concat(chData.pages[p]);
+        fullQuestionPool = fullQuestionPool.concat(chData.pages[p]);
       });
     }
   }
 
-  currentQuestions = [...pool];
+  generateNewSet();
+}
+
+function generateNewSet() {
+  // Shuffle array to ensure a randomized unique new set
+  let shuffled = [...fullQuestionPool].sort(() => 0.5 - Math.random());
+  currentQuestions = shuffled.slice(0, 10);
   qIndex = 0;
   testScores = { correct: 0, wrong: 0, total: currentQuestions.length };
   
   if (currentQuestions.length === 0) {
-    document.getElementById('appBody').innerHTML = '<div style="padding: 20px; text-align:center;">No questions available in this scope.</div>';
+    document.getElementById('appBody').innerHTML = '<div style="padding:20px; text-align:center;">No questions available.</div>';
   } else {
     renderQuestion();
   }
+}
+
+function retestSameSet() {
+  qIndex = 0;
+  testScores = { correct: 0, wrong: 0, total: currentQuestions.length };
+  renderQuestion();
 }
 
 function renderQuestion() {
@@ -445,7 +426,7 @@ function renderQuestion() {
     <button onclick="nextQuestion()">Next ➡️</button>
   </div>`;
 
-  html += `<div style="margin-top: 15px;"><button onclick="readQuestionTTS()" style="background:#7f8c8d;">🔊 Listen Question</button></div></div>`;
+  html += `<div style="margin-top: 15px;"><button onclick="manualReadTTS()" style="background:#7f8c8d;">🔊 Listen Question</button></div></div>`;
   
   app.innerHTML = html;
   focusInputBox();
@@ -462,11 +443,14 @@ function prevQuestion() { if (qIndex > 0) { qIndex--; renderQuestion(); } }
 function skipQuestion() { qIndex++; renderQuestion(); }
 function nextQuestion() { qIndex++; renderQuestion(); }
 
-function readQuestionTTS(callback = null) {
+function manualReadTTS() {
   const q = currentQuestions[qIndex];
   let textToRead = q.question.replace('____', 'dash');
-  if (q.type === 'mcq') textToRead += ". Options are: " + q.options.join(", ");
-  speakText(textToRead, callback);
+  if (q.type === 'mcq') textToRead += ". Options: " + q.options.join(", ");
+  
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+  window.speechSynthesis.speak(utterance);
 }
 
 function checkAnswer(userAns, btnElem = null) {
@@ -488,37 +472,47 @@ function checkAnswer(userAns, btnElem = null) {
     if (inputElem) inputElem.value = q.answer;
     if (iconElem) { iconElem.textContent = "✓"; iconElem.className = "status-icon tick"; }
 
-    playChime(true);
     if (btnElem) btnElem.classList.add('correct');
 
-    // Voice sequence: "Correct!" -> then read the answer
-    speakText("Correct!", () => {
-      speakText(`The answer is ${q.answer}`, () => {
-        setTimeout(() => { qIndex++; renderQuestion(); }, 500);
+    if (travelMode) {
+      speakText("Correct!", () => {
+        speakText(`The answer is ${q.answer}`, () => {
+          setTimeout(() => { qIndex++; renderQuestion(); }, 400);
+        });
       });
-    });
+    } else {
+      setTimeout(() => { qIndex++; renderQuestion(); }, 1000);
+    }
   } else {
     attemptsLeft--;
-    playChime(false);
     if (btnElem) btnElem.classList.add('wrong');
     if (iconElem) { iconElem.textContent = "✕"; iconElem.className = "status-icon cross"; }
 
     if (attemptsLeft <= 0) {
       testScores.wrong++;
       logMistake(q, userAns);
+      if (inputElem) inputElem.value = q.answer;
       
-      // Sequence for wrong attempts: "Incorrect!" -> Write & Say answer
-      speakText("Incorrect!", () => {
-        if (inputElem) inputElem.value = q.answer;
-        speakText(`The correct answer is: ${q.answer}`, () => {
-          setTimeout(() => { qIndex++; renderQuestion(); }, 1000);
+      if (travelMode) {
+        speakText("Incorrect!", () => {
+          speakText(`The correct answer is: ${q.answer}`, () => {
+            setTimeout(() => { qIndex++; renderQuestion(); }, 800);
+          });
         });
-      });
+      } else {
+        setTimeout(() => { qIndex++; renderQuestion(); }, 1200);
+      }
     } else {
-      speakText("Incorrect! Try again.", () => {
-        if (inputElem) { inputElem.value = ''; iconElem.textContent = ''; inputElem.focus(); }
-        if (travelMode) startSpeechRec();
-      });
+      if (travelMode) {
+        speakText("Incorrect! Try again.", () => {
+          if (inputElem) { inputElem.value = ''; iconElem.textContent = ''; inputElem.focus(); }
+          startSpeechRec();
+        });
+      } else {
+        setTimeout(() => {
+          if (inputElem) { inputElem.value = ''; iconElem.textContent = ''; inputElem.focus(); }
+        }, 800);
+      }
     }
   }
 }
@@ -530,18 +524,14 @@ function logMistake(questionObj, userAns) {
     chapter: currentChapter,
     question: questionObj.question,
     correctAnswer: questionObj.answer,
-    givenAnswer: userAns || "No response",
-    timestamp: new Date().toLocaleDateString()
+    givenAnswer: userAns || "No response"
   });
   localStorage.setItem('mistake_notebook', JSON.stringify(notebook));
 }
 
 function startSpeechRec() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Speech recognition is not supported in this browser.");
-    return;
-  }
+  if (!SpeechRecognition) return;
   
   if (speechRec) { try { speechRec.abort(); } catch(e){} }
 
@@ -585,9 +575,7 @@ function toggleTravelMode() {
 
 function runTravelLoop() {
   if (!travelMode || qIndex >= currentQuestions.length) return;
-  readQuestionTTS(() => {
-    setTimeout(() => { if (travelMode) startSpeechRec(); }, 500);
-  });
+  manualReadTTS();
 }
 
 function renderResults() {
@@ -619,19 +607,13 @@ function renderResults() {
       </div>
 
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:20px;">
-        <button onclick="retestCurrentSet()">🔄 Retest Same Set</button>
-        <button onclick="loadQuestions()">🎲 New Random Set</button>
+        <button onclick="retestSameSet()">🔄 Retest Same Set</button>
+        <button onclick="generateNewSet()">🎲 New Set</button>
         <button onclick="focusTopicSelector()" style="background:#8e44ad;">📚 Change Topic</button>
         <button onclick="openNotebook()" style="background:#27ae60;">📓 Mistake Notebook</button>
       </div>
     </div>
   `;
-}
-
-function retestCurrentSet() {
-  qIndex = 0;
-  testScores = { correct: 0, wrong: 0, total: currentQuestions.length };
-  renderQuestion();
 }
 
 function focusTopicSelector() {
