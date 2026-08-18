@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class 9 Science Learning Hub</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-color: #2c3e50;
+      --primary: #3498db;
+      --emerald: #2ecc71;
+      --crimson: #e74c3c;
+      --border: #dcdde1;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    h1, h2, h3 { margin: 0 0 10px 0; }
+
+    .control-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    select, button, input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .travel-btn { background: #8e44ad; }
+    .travel-btn.active {
+      background: #27ae60;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+    }
+
+    .heatmap {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    .page-node {
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+
+    .page-node.green { background: #abf7b1; }
+    .page-node.yellow { background: #fff3a8; }
+    .page-node.red { background: #ffb3b3; }
+
+    .card {
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      position: relative;
+      background: #fafafa;
+    }
+
+    /* Textbox with icon container */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .input-wrapper input {
+      padding-right: 45px;
+    }
+
+    .status-icon {
+      position: absolute;
+      right: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .status-icon.tick { color: var(--emerald); }
+    .status-icon.cross { color: var(--crimson); }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .opt-btn {
+      background: white;
+      color: var(--text-color);
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .opt-btn.correct { background: var(--emerald) !important; color: white; }
+    .opt-btn.wrong { background: var(--crimson) !important; color: white; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .nav-bar button { background: #7f8c8d; }
+
+    .mic-btn {
+      background: #e67e22;
+      margin-top: 10px;
+    }
+
+    .mic-btn.listening {
+      background: #e74c3c;
+      animation: pulse 1s infinite;
+    }
+
+    .score-card {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .score-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .score-box h4 { margin: 0; color: #7f8c8d; font-size: 12px; }
+    .score-box p { margin: 5px 0 0 0; font-size: 22px; font-weight: bold; }
+
+    .notebook, .results-screen { display: none; }
+
+    @media print {
+      body * { visibility: hidden; }
+      .printable-area, .printable-area * { visibility: visible; }
+      .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header class="no-print">
+    <div>
+      <h1>Class 9 Science Hub</h1>
+      <small>Comprehensive Line-by-Line Revision</small>
+    </div>
+    <button class="travel-btn" id="travelBtn" onclick="toggleTravelMode()" style="width: auto;">✈️ Travel Mode: OFF</button>
+  </header>
+
+  <div class="control-panel no-print" id="topControlPanel">
+    <div>
+      <label>Class:</label>
+      <select id="classSelect" onchange="updateSelection()">
+        <option value="9">Class 9</option>
+      </select>
+    </div>
+    <div>
+      <label>Subject:</label>
+      <select id="subjectSelect" onchange="updateSelection()">
+        <option value="Science">Science</option>
+      </select>
+    </div>
+    <div>
+      <label>Chapter:</label>
+      <select id="chapterSelect" onchange="updateSelection()">
+        <!-- Populated via JS -->
+      </select>
+    </div>
+    <div>
+      <label>Scope:</label>
+      <select id="scopeSelect" onchange="renderScope()">
+        <option value="all">Whole Chapter</option>
+        <option value="page">Page-by-Page</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="heatmapArea" class="heatmap no-print"></div>
+
+  <div id="appBody">
+    <!-- Active Quiz Card -->
+  </div>
+
+  <div id="notebookArea" class="notebook printable-area">
+    <h2>Automated Mistake Notebook</h2>
+    <div id="notebookContent"></div>
+    <br>
+    <button class="no-print" onclick="window.print()">🖨️ Print Revision Sheet</button>
+    <button class="no-print" onclick="closeNotebook()">Close Notebook</button>
+  </div>
+</div>
+
+<script>
+const EXAM_DATA = {
+  "Science": {
+    "Ch1": {
+      "title": "Matter in Our Surroundings",
+      "pages": {
+        "1": [
+          { "id": "c1_p1_1", "type": "mcq", "question": "Everything in this universe is made up of material which scientists have named:", "options": ["Energy", "Matter", "Atom", "Molecule"], "answer": "Matter" },
+          { "id": "c1_p1_2", "type": "blank", "question": "Early Indian philosophers classified matter into five basic elements called ____.", "answer": "Panch Tatva" }
+        ],
+        "2": [
+          { "id": "c1_p2_1", "type": "blank", "question": "Particles of matter are very small—they are small beyond our ____.", "answer": "imagination" }
+        ]
+      }
+    }
+  }
+};
+
+let currentClass = "9";
+let currentSubject = "Science";
+let currentChapter = "Ch1";
+let currentScope = "all";
+let currentPage = null;
+
+let currentQuestions = [];
+let qIndex = 0;
+let attemptsLeft = 2;
+let travelMode = false;
+let audioCtx = null;
+let speechRec = null;
+
+// Session Tracking Scores
+let testScores = { correct: 0, wrong: 0, total: 0 };
+
+window.onload = function() {
+  initAudio();
+  populateChapters();
+  renderScope();
+};
+
+function initAudio() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (AudioContext) audioCtx = new AudioContext();
+}
+
+function playChime(success = true) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  if (success) {
+    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  } else {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.2);
+  }
+}
+
+function speakText(text, callback = null) {
+  if (!('speechSynthesis' in window)) {
+    if (callback) callback();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.95;
+  utterance.onend = () => { if (callback) callback(); };
+  utterance.onerror = () => { if (callback) callback(); };
+  window.speechSynthesis.speak(utterance);
+}
+
+function populateChapters() {
+  const chapSelect = document.getElementById('chapterSelect');
+  chapSelect.innerHTML = '';
+  const chaps = EXAM_DATA[currentSubject];
+  if (chaps) {
+    for (let k in chaps) {
+      let opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = `${k}: ${chaps[k].title}`;
+      chapSelect.appendChild(opt);
+    }
+    currentChapter = chapSelect.value;
+  }
+}
+
+function updateSelection() {
+  currentClass = document.getElementById('classSelect').value;
+  currentSubject = document.getElementById('subjectSelect').value;
+  populateChapters();
+  renderScope();
+}
+
+function renderScope() {
+  currentScope = document.getElementById('scopeSelect').value;
+  const heatmap = document.getElementById('heatmapArea');
+  heatmap.innerHTML = '';
+
+  const chData = EXAM_DATA[currentSubject][currentChapter];
+  const pages = chData ? chData.pages : {};
+
+  if (currentScope === 'page') {
+    Object.keys(pages).forEach(p => {
+      const node = document.createElement('div');
+      node.className = `page-node`;
+      node.textContent = `Pg ${p}`;
+      node.onclick = () => { currentPage = p; loadQuestions(); };
+      heatmap.appendChild(node);
+    });
+    currentPage = Object.keys(pages)[0];
+  } else {
+    currentPage = null;
+  }
+
+  loadQuestions();
+}
+
+function loadQuestions() {
+  const chData = EXAM_DATA[currentSubject][currentChapter];
+  let pool = [];
+
+  if (chData) {
+    if (currentScope === 'page' && currentPage) {
+      pool = chData.pages[currentPage] || [];
+    } else {
+      Object.keys(chData.pages).forEach(p => {
+        pool = pool.concat(chData.pages[p]);
+      });
+    }
+  }
+
+  currentQuestions = [...pool];
+  qIndex = 0;
+  testScores = { correct: 0, wrong: 0, total: currentQuestions.length };
+  
+  if (currentQuestions.length === 0) {
+    document.getElementById('appBody').innerHTML = '<div style="padding: 20px; text-align:center;">No questions available in this scope.</div>';
+  } else {
+    renderQuestion();
+  }
+}
+
+function renderQuestion() {
+  attemptsLeft = 2;
+
+  if (qIndex < 0) qIndex = 0;
+  if (qIndex >= currentQuestions.length) {
+    renderResults();
+    return;
+  }
+
+  const q = currentQuestions[qIndex];
+  const app = document.getElementById('appBody');
+
+  let html = `<div class="card" id="qCard">
+    <small>Question ${qIndex + 1} of ${currentQuestions.length}</small>
+    <h3>${q.question.replace('____', '______')}</h3>`;
+
+  if (q.type === 'mcq') {
+    html += `<div class="options-grid">`;
+    q.options.forEach((opt) => {
+      html += `<button class="opt-btn" onclick="checkAnswer('${opt}', this)">${opt}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<form onsubmit="event.preventDefault(); checkAnswer(document.getElementById('blankInput').value);" class="input-wrapper">
+    <input type="text" id="blankInput" placeholder="${q.type === 'blank' ? 'Type your answer...' : 'Selected/Spoken Answer will appear here'}" autocomplete="off">
+    <span id="statusIcon" class="status-icon"></span>
+  </form>
+  ${q.type === 'blank' ? '<button onclick="checkAnswer(document.getElementById(\'blankInput\').value)" style="margin-top:10px;">Submit Answer</button>' : ''}`;
+
+  html += `<button class="mic-btn" id="micBtn" onclick="startSpeechRec()">🎤 Tap to Speak Answer</button>`;
+  
+  html += `<div class="nav-bar">
+    <button onclick="prevQuestion()" ${qIndex === 0 ? 'disabled style="opacity:0.5;"' : ''}>⬅️ Previous</button>
+    <button onclick="skipQuestion()">⏭️ Skip</button>
+    <button onclick="nextQuestion()">Next ➡️</button>
+  </div>`;
+
+  html += `<div style="margin-top: 15px;"><button onclick="readQuestionTTS()" style="background:#7f8c8d;">🔊 Listen Question</button></div></div>`;
+  
+  app.innerHTML = html;
+  focusInputBox();
+
+  if (travelMode) runTravelLoop();
+}
+
+function focusInputBox() {
+  const inp = document.getElementById('blankInput');
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+function prevQuestion() { if (qIndex > 0) { qIndex--; renderQuestion(); } }
+function skipQuestion() { qIndex++; renderQuestion(); }
+function nextQuestion() { qIndex++; renderQuestion(); }
+
+function readQuestionTTS(callback = null) {
+  const q = currentQuestions[qIndex];
+  let textToRead = q.question.replace('____', 'dash');
+  if (q.type === 'mcq') textToRead += ". Options are: " + q.options.join(", ");
+  speakText(textToRead, callback);
+}
+
+function checkAnswer(userAns, btnElem = null) {
+  const q = currentQuestions[qIndex];
+  let isCorrect = false;
+
+  let cleanUser = (userAns || '').toString().trim().toLowerCase();
+  let cleanTarget = q.answer.toString().trim().toLowerCase();
+  
+  if (cleanUser && (cleanUser === cleanTarget || cleanTarget.includes(cleanUser) || cleanUser.includes(cleanTarget))) {
+    isCorrect = true;
+  }
+
+  const inputElem = document.getElementById('blankInput');
+  const iconElem = document.getElementById('statusIcon');
+
+  if (isCorrect) {
+    testScores.correct++;
+    if (inputElem) inputElem.value = q.answer;
+    if (iconElem) { iconElem.textContent = "✓"; iconElem.className = "status-icon tick"; }
+
+    playChime(true);
+    if (btnElem) btnElem.classList.add('correct');
+
+    // Voice sequence: "Correct!" -> then read the answer
+    speakText("Correct!", () => {
+      speakText(`The answer is ${q.answer}`, () => {
+        setTimeout(() => { qIndex++; renderQuestion(); }, 500);
+      });
+    });
+  } else {
+    attemptsLeft--;
+    playChime(false);
+    if (btnElem) btnElem.classList.add('wrong');
+    if (iconElem) { iconElem.textContent = "✕"; iconElem.className = "status-icon cross"; }
+
+    if (attemptsLeft <= 0) {
+      testScores.wrong++;
+      logMistake(q, userAns);
+      
+      // Sequence for wrong attempts: "Incorrect!" -> Write & Say answer
+      speakText("Incorrect!", () => {
+        if (inputElem) inputElem.value = q.answer;
+        speakText(`The correct answer is: ${q.answer}`, () => {
+          setTimeout(() => { qIndex++; renderQuestion(); }, 1000);
+        });
+      });
+    } else {
+      speakText("Incorrect! Try again.", () => {
+        if (inputElem) { inputElem.value = ''; iconElem.textContent = ''; inputElem.focus(); }
+        if (travelMode) startSpeechRec();
+      });
+    }
+  }
+}
+
+function logMistake(questionObj, userAns) {
+  let notebook = JSON.parse(localStorage.getItem('mistake_notebook') || '[]');
+  notebook.push({
+    subject: currentSubject,
+    chapter: currentChapter,
+    question: questionObj.question,
+    correctAnswer: questionObj.answer,
+    givenAnswer: userAns || "No response",
+    timestamp: new Date().toLocaleDateString()
+  });
+  localStorage.setItem('mistake_notebook', JSON.stringify(notebook));
+}
+
+function startSpeechRec() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not supported in this browser.");
+    return;
+  }
+  
+  if (speechRec) { try { speechRec.abort(); } catch(e){} }
+
+  speechRec = new SpeechRecognition();
+  speechRec.lang = 'en-US';
+  speechRec.continuous = false;
+  speechRec.interimResults = false;
+  
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) micBtn.classList.add('listening');
+
+  speechRec.onresult = (event) => {
+    if (micBtn) micBtn.classList.remove('listening');
+    if (event.results && event.results[0] && event.results[0][0]) {
+      const spokenText = event.results[0][0].transcript;
+      const inputElem = document.getElementById('blankInput');
+      if (inputElem) inputElem.value = spokenText;
+      checkAnswer(spokenText);
+    }
+  };
+
+  speechRec.onerror = () => { if (micBtn) micBtn.classList.remove('listening'); };
+  speechRec.onend = () => { if (micBtn) micBtn.classList.remove('listening'); };
+
+  try { speechRec.start(); } catch(e){}
+}
+
+function toggleTravelMode() {
+  travelMode = !travelMode;
+  const btn = document.getElementById('travelBtn');
+  if (travelMode) {
+    btn.textContent = "✈️ Travel Mode: ON";
+    btn.classList.add('active');
+    runTravelLoop();
+  } else {
+    btn.textContent = "✈️ Travel Mode: OFF";
+    btn.classList.remove('active');
+    window.speechSynthesis.cancel();
+  }
+}
+
+function runTravelLoop() {
+  if (!travelMode || qIndex >= currentQuestions.length) return;
+  readQuestionTTS(() => {
+    setTimeout(() => { if (travelMode) startSpeechRec(); }, 500);
+  });
+}
+
+function renderResults() {
+  const app = document.getElementById('appBody');
+  const pct = testScores.total > 0 ? Math.round((testScores.correct / testScores.total) * 100) : 0;
+
+  app.innerHTML = `
+    <div class="card results-screen" style="display:block; text-align:center;">
+      <h2>🎉 Quiz Complete!</h2>
+      <p>Here is your performance summary:</p>
+
+      <div class="score-card">
+        <div class="score-box">
+          <h4>TOTAL</h4>
+          <p>${testScores.total}</p>
+        </div>
+        <div class="score-box">
+          <h4>CORRECT</h4>
+          <p style="color:var(--emerald);">${testScores.correct}</p>
+        </div>
+        <div class="score-box">
+          <h4>WRONG</h4>
+          <p style="color:var(--crimson);">${testScores.wrong}</p>
+        </div>
+        <div class="score-box">
+          <h4>SCORE</h4>
+          <p style="color:var(--primary);">${pct}%</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:20px;">
+        <button onclick="retestCurrentSet()">🔄 Retest Same Set</button>
+        <button onclick="loadQuestions()">🎲 New Random Set</button>
+        <button onclick="focusTopicSelector()" style="background:#8e44ad;">📚 Change Topic</button>
+        <button onclick="openNotebook()" style="background:#27ae60;">📓 Mistake Notebook</button>
+      </div>
+    </div>
+  `;
+}
+
+function retestCurrentSet() {
+  qIndex = 0;
+  testScores = { correct: 0, wrong: 0, total: currentQuestions.length };
+  renderQuestion();
+}
+
+function focusTopicSelector() {
+  document.getElementById('topControlPanel').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('chapterSelect').focus();
+}
+
+function openNotebook() {
+  const nb = JSON.parse(localStorage.getItem('mistake_notebook') || '[]');
+  const container = document.getElementById('notebookContent');
+  
+  if (nb.length === 0) {
+    container.innerHTML = "<p>No mistakes recorded! Great job.</p>";
+  } else {
+    let html = "<ul style='text-align:left;'>";
+    nb.forEach(item => {
+      html += `<li style="margin-bottom:12px;">
+        <strong>[${item.subject} - ${item.chapter}]</strong> ${item.question}<br/>
+        <span style="color:var(--crimson);">Your answer: ${item.givenAnswer}</span> | 
+        <span style="color:var(--emerald);">Correct answer: ${item.correctAnswer}</span>
+      </li>`;
+    });
+    html += "</ul>";
+    container.innerHTML = html;
+  }
+  
+  document.getElementById('notebookArea').style.display = 'block';
+  document.getElementById('appBody').style.display = 'none';
+}
+
+function closeNotebook() {
+  document.getElementById('notebookArea').style.display = 'none';
+  document.getElementById('appBody').style.display = 'block';
+}
+</script>
+</body>
+</html>
