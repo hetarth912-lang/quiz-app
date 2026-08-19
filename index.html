@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Chapter Mastery App</title>
-  <!-- PWA Web App Manifest inline for single-file compliance -->
-  <link rel="manifest" id="manifest-placeholder">
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -189,10 +187,6 @@
 </div>
 
 <script>
-/=============================================================================
-  EXAM DATA STRUCTURE
-  Excludes ignored Science pages (12,13,23,24,25,36,37,47,48,71,85,86,98,99,111,112,125,126,138,139,152,153,154)
-=============================================================================*/
 const EXAM_DATA = {
   "Class 9": {
     "Science": {
@@ -252,7 +246,6 @@ const EXAM_DATA = {
   }
 };
 
-/* State Variables */
 let currentScopeQuestions = [];
 let currentTestSet = [];
 let currentIndex = 0;
@@ -261,7 +254,6 @@ let attemptsLeft = {};
 let travelMode = false;
 let recognition = null;
 
-/* LocalStorage Persistence Utilities */
 function getStorageKey(suffix) {
   const cls = document.getElementById('classSelect').value;
   const sub = document.getElementById('subjectSelect').value;
@@ -271,22 +263,25 @@ function getStorageKey(suffix) {
 }
 
 function loadProgress() {
-  const seenIds = JSON.parse(localStorage.getItem(getStorageKey('seen')) || '[]');
-  return seenIds;
+  try {
+    return JSON.parse(localStorage.getItem(getStorageKey('seen')) || '[]');
+  } catch (e) {
+    return [];
+  }
 }
 
 function saveProgress(qId) {
   const seenIds = loadProgress();
   if (!seenIds.includes(qId)) {
     seenIds.push(qId);
-    localStorage.setItem(getStorageKey('seen'), JSON.stringify(seenIds));
+    try {
+      localStorage.setItem(getStorageKey('seen'), JSON.stringify(seenIds));
+    } catch (e) {}
   }
 }
 
-/* App Initialization & Select Handlers */
 function initApp() {
   populateChapters();
-  setupPWA();
   setupSpeechRecognition();
 }
 
@@ -361,7 +356,7 @@ function gatherScopeQuestions() {
   const pg = document.getElementById('pageSelect').value;
 
   currentScopeQuestions = [];
-  const chObj = EXAM_DATA[cls][sub][ch];
+  const chObj = EXAM_DATA[cls]?.[sub]?.[ch] || {};
 
   if (pg === 'whole') {
     Object.keys(chObj).forEach(pageKey => {
@@ -372,7 +367,6 @@ function gatherScopeQuestions() {
   }
 }
 
-/* Sample unseen questions first, picking max 20 questions across formats */
 function initTest(mode = 'new') {
   const seenIds = loadProgress();
   let pool = [...currentScopeQuestions];
@@ -382,10 +376,8 @@ function initTest(mode = 'new') {
     if (pool.length === 0) pool = [...currentScopeQuestions];
   }
 
-  // Sort unseen first
   pool.sort((a, b) => (seenIds.includes(a.id) ? 1 : -1));
 
-  // Balanced sampling across formats (5 per format max if available)
   const formats = ['mcq', 'fill_in_the_blanks', 'one_word', 'true_false'];
   let selected = [];
 
@@ -394,7 +386,6 @@ function initTest(mode = 'new') {
     selected.push(...fmtQuestions);
   });
 
-  // Top up to 20 if pool has remaining
   if (selected.length < 20) {
     let remaining = pool.filter(q => !selected.includes(q));
     selected.push(...remaining.slice(0, 20 - selected.length));
@@ -409,7 +400,6 @@ function initTest(mode = 'new') {
   renderQuestion();
 }
 
-/* Render current question interface */
 function renderQuestion() {
   if (currentTestSet.length === 0) {
     document.getElementById('qText').innerText = "No questions available for this selection.";
@@ -441,7 +431,6 @@ function renderQuestion() {
     });
     area.appendChild(grid);
   } else {
-    // Fill in blanks / One word
     const wrap = document.createElement('div');
     wrap.className = 'text-input-wrap';
     
@@ -470,7 +459,6 @@ function renderQuestion() {
   }
 }
 
-/* Attempt Logic - 2 Attempts, Hand-drawn Overlay, Automatic Input Clearing */
 function handleChoiceAttempt(chosen, btnEl) {
   const q = currentTestSet[currentIndex];
   if (userAnswers[q.id]?.isCorrect) return;
@@ -517,7 +505,7 @@ function handleTextAttempt(valOverride = null) {
     attemptsLeft[q.id]--;
 
     setTimeout(() => {
-      if (inputEl) inputEl.value = ''; // Empty text box automatically
+      if (inputEl) inputEl.value = '';
       overlay.className = 'signature-overlay';
     }, 800);
 
@@ -544,7 +532,6 @@ function recordAnswer(qId, isCorrect, answerText) {
   renderHeatmap();
 }
 
-/* Fuzzy Matching Engine */
 function fuzzyMatch(input, target) {
   const cleanInput = input.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
   const cleanTarget = target.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
@@ -553,7 +540,6 @@ function fuzzyMatch(input, target) {
   return false;
 }
 
-/* Navigation controls */
 function nextQuestion() {
   if (currentIndex < currentTestSet.length - 1) {
     currentIndex++;
@@ -574,7 +560,6 @@ function skipQuestion() {
   nextQuestion();
 }
 
-/* Accuracy Heatmap Renderer */
 function renderHeatmap() {
   const bar = document.getElementById('heatmapBar');
   bar.innerHTML = '';
@@ -586,7 +571,6 @@ function renderHeatmap() {
   const pages = Object.keys(chObj);
   pages.forEach(pg => {
     const qList = chObj[pg];
-    const seen = loadProgress();
     const answered = qList.filter(q => userAnswers[q.id]);
     
     let seg = document.createElement('div');
@@ -602,7 +586,6 @@ function renderHeatmap() {
   });
 }
 
-/* Voice TTS & Speech Recognition Engine */
 function speakTTS(text, onEndCallback = null) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
@@ -676,7 +659,6 @@ function toggleTravelMode() {
   }
 }
 
-/* Results Screen & Auto Mistake Notebook */
 function showResults() {
   document.getElementById('quizCard').style.display = 'none';
   const res = document.getElementById('resultsScreen');
@@ -723,33 +705,7 @@ function closeRevisionSheet() {
   document.getElementById('resultsScreen').style.display = 'flex';
 }
 
-/* Inline PWA Service Worker Registration */
-function setupPWA() {
-  const manifest = {
-    "name": "Smart Chapter Mastery PWA",
-    "short_name": "MasteryPWA",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#4f46e5",
-    "theme_color": "#4f46e5",
-    "icons": [{ "src": "https://via.placeholder.com/192", "sizes": "192x192", "type": "image/png" }]
-  };
-  const stringManifest = JSON.stringify(manifest);
-  const blob = new Blob([stringManifest], {type: 'application/json'});
-  document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(blob));
-
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-      self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-      self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-    `;
-    const swBlob = new Blob([swCode], {type: 'text/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-  }
-}
-
-window.onload = initApp;
+window.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
